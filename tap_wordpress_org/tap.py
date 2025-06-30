@@ -4,18 +4,18 @@ from __future__ import annotations
 
 from typing import List
 
-from singer_sdk import Tap, Stream
+from singer_sdk import Stream, Tap
 from singer_sdk import typing as th
 
 from tap_wordpress_org.streams import (
+    EventsStream,
+    LocaleStatsStream,
+    MySQLStatsStream,
+    PatternsStream,
+    PHPStatsStream,
     PluginsStream,
     ThemesStream,
-    EventsStream,
-    PatternsStream,
     WordPressStatsStream,
-    PHPStatsStream,
-    MySQLStatsStream,
-    LocaleStatsStream,
 )
 
 STREAM_TYPES = [

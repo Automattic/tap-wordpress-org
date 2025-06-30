@@ -1,16 +1,18 @@
 """Test stream functionality."""
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
+
 from tap_wordpress_org.streams import (
+    EventsStream,
+    LocaleStatsStream,
+    MySQLStatsStream,
+    PatternsStream,
+    PHPStatsStream,
     PluginsStream,
     ThemesStream,
-    EventsStream,
-    PatternsStream,
     WordPressStatsStream,
-    PHPStatsStream,
-    MySQLStatsStream,
-    LocaleStatsStream,
 )
 
 

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
+
 from singer_sdk import typing as th
+
 from tap_wordpress_org.client import WordPressOrgAPIStream
 
 
