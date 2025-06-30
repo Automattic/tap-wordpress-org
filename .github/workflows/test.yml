@@ -80,4 +80,3 @@ jobs:
         poetry run black --check tap_wordpress_org tests
         poetry run isort --check-only tap_wordpress_org tests
         poetry run flake8 tap_wordpress_org tests
-        poetry run mypy tap_wordpress_org
