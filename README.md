@@ -1,8 +1,8 @@
 # tap-wordpress-org
 
-[![Python version](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
-[![Singer Tap](https://img.shields.io/badge/singer-tap-orange)](https://hub.meltano.com/singer/docs/)
-[![Meltano SDK](https://img.shields.io/badge/SDK-Meltano-blue)](https://sdk.meltano.com)
+![Tests](https://github.com/Automattic/tap-wordpress-org/actions/workflows/test.yml/badge.svg)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
 
 Singer tap for WordPress.org, built with the [Meltano SDK](https://sdk.meltano.com) for Singer Taps.
 
@@ -63,7 +63,6 @@ export TAP_WORDPRESS_ORG_USER_AGENT=my-app/1.0
 
 ## Supported Python Versions
 
-* 3.8
 * 3.9
 * 3.10
 * 3.11
@@ -77,6 +76,10 @@ export TAP_WORDPRESS_ORG_USER_AGENT=my-app/1.0
 | `themes` | `slug` | FULL_TABLE | WordPress theme repository data |
 | `events` | `id` | FULL_TABLE | WordPress events (WordCamps and meetups) |
 | `patterns` | `id` | FULL_TABLE | Block patterns |
+| `wordpress_stats` | `version` | FULL_TABLE | WordPress version usage statistics |
+| `php_stats` | `version` | FULL_TABLE | PHP version usage statistics |
+| `mysql_stats` | `version` | FULL_TABLE | MySQL version usage statistics |
+| `locale_stats` | `locale` | FULL_TABLE | Language/locale usage statistics |
 
 ## Usage
 
