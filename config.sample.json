@@ -2,5 +2,7 @@
   "api_url": "https://api.wordpress.org",
   "user_agent": "tap-wordpress-org/0.1.0",
   "events_location": "Seattle, WA",
-  "events_ip": "192.168.1.1"
+  "events_ip": "192.168.1.1",
+  "stream_selection": ["plugins", "wordpress_stats", "php_stats"],
+  "start_date": "2024-01-01T00:00:00Z"
 }

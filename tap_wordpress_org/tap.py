@@ -58,14 +58,36 @@ class TapWordPressOrg(Tap):
             th.StringType,
             description="IP address for events location detection",
         ),
+        th.Property(
+            "stream_selection",
+            th.ArrayType(th.StringType),
+            description="List of stream names to sync (default: all streams)",
+        ),
+        th.Property(
+            "start_date",
+            th.DateTimeType,
+            description="Start date for incremental replication (plugins/themes)",
+        ),
     ).to_dict()
 
     def discover_streams(self) -> List[Stream]:
         """Return a list of discovered streams."""
-        return [
+        all_streams = [
             stream_class(tap=self, name=stream_class.name)
             for stream_class in STREAM_TYPES
         ]
+
+        # Filter streams based on configuration
+        stream_selection = self.config.get("stream_selection")
+        if stream_selection:
+            selected_streams = [s for s in all_streams if s.name in stream_selection]
+            self.logger.info(
+                f"Selected {len(selected_streams)} streams: "
+                f"{[s.name for s in selected_streams]}"
+            )
+            return selected_streams
+
+        return all_streams
 
 
 if __name__ == "__main__":

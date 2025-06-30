@@ -51,6 +51,8 @@ export TAP_WORDPRESS_ORG_USER_AGENT=my-app/1.0
 | user_agent | False | tap-wordpress-org/0.1.0 | User agent for API requests |
 | events_location | False | None | Location for events search (e.g., 'Seattle, WA') |
 | events_ip | False | None | IP address for events location detection |
+| stream_selection | False | All streams | List of stream names to sync (e.g., ["plugins", "wordpress_stats"]) |
+| start_date | False | None | Start date for incremental replication (plugins/themes only) |
 
 ## Capabilities
 
@@ -72,14 +74,32 @@ export TAP_WORDPRESS_ORG_USER_AGENT=my-app/1.0
 
 | Stream | Primary Key | Replication Method | Notes |
 |:-------|:-----------:|:------------------:|:------|
-| `plugins` | `slug` | FULL_TABLE | WordPress plugin repository data |
-| `themes` | `slug` | FULL_TABLE | WordPress theme repository data |
+| `plugins` | `slug` | INCREMENTAL | WordPress plugin repository data |
+| `themes` | `slug` | INCREMENTAL | WordPress theme repository data |
 | `events` | `id` | FULL_TABLE | WordPress events (WordCamps and meetups) |
 | `patterns` | `id` | FULL_TABLE | Block patterns |
 | `wordpress_stats` | `version` | FULL_TABLE | WordPress version usage statistics |
 | `php_stats` | `version` | FULL_TABLE | PHP version usage statistics |
 | `mysql_stats` | `version` | FULL_TABLE | MySQL version usage statistics |
 | `locale_stats` | `locale` | FULL_TABLE | Language/locale usage statistics |
+
+## Features
+
+### Incremental Replication
+The `plugins` and `themes` streams support incremental replication using the `last_updated` field. Set a `start_date` in your configuration to sync only records updated after that date.
+
+### Stream Selection
+You can select specific streams to sync by setting `stream_selection` in your configuration:
+```json
+{
+  "stream_selection": ["plugins", "wordpress_stats", "php_stats"]
+}
+```
+
+### Custom Transformations
+The tap includes built-in data transformations:
+- HTML entity decoding (e.g., `&#8211;` → `–`)
+- Boolean field normalization (converts `false` to `null` for optional fields)
 
 ## Usage
 

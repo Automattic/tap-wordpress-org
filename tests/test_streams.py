@@ -79,7 +79,7 @@ class TestStreams:
 
         assert params["action"] == "query_plugins"
         assert params["per_page"] == 100
-        assert params["browse"] == "popular"
+        assert params["browse"] == "updated"
 
     def test_plugins_pagination(self):
         """Test plugins stream pagination."""
@@ -206,6 +206,83 @@ class TestStreams:
             # Check common stats fields
             assert "count" in schema["properties"]
             assert "percent" in schema["properties"]
+
+    def test_incremental_replication_key(self):
+        """Test that plugins and themes streams have replication keys."""
+        tap_mock = Mock()
+        tap_mock.config = self.config
+
+        plugins_stream = PluginsStream(tap=tap_mock)
+        themes_stream = ThemesStream(tap=tap_mock)
+
+        assert plugins_stream.replication_key == "last_updated"
+        assert themes_stream.replication_key == "last_updated"
+
+        # Stats streams should not have replication keys (full table)
+        wordpress_stats = WordPressStatsStream(tap=tap_mock)
+        assert wordpress_stats.replication_key is None
+
+    def test_post_process_transformations(self):
+        """Test custom transformations in post_process method."""
+        tap_mock = Mock()
+        tap_mock.config = self.config
+        stream = PluginsStream(tap=tap_mock)
+
+        # Test HTML entity decoding
+        test_record = {
+            "name": "Plugin &#8211; Test &amp; More",
+            "short_description": "Description &#8211; Test &amp; More",
+            "requires_php": False,
+            "requires": False,
+            "tested": "6.0",
+        }
+
+        result = stream.post_process(test_record, context={})
+
+        assert result["name"] == "Plugin – Test & More"
+        assert result["short_description"] == "Description – Test & More"
+        assert result["requires_php"] is None  # False converted to None
+        assert result["requires"] is None  # False converted to None
+        assert result["tested"] == "6.0"  # String values unchanged
+
+    def test_themes_post_process_transformations(self):
+        """Test custom transformations in themes post_process method."""
+        tap_mock = Mock()
+        tap_mock.config = self.config
+        stream = ThemesStream(tap=tap_mock)
+
+        test_record = {
+            "name": "Theme &#8211; Beautiful &amp; Clean",
+            "requires_php": False,
+            "requires": False,
+        }
+
+        result = stream.post_process(test_record, context={})
+
+        assert result["name"] == "Theme – Beautiful & Clean"
+        assert result["requires_php"] is None
+        assert result["requires"] is None
+
+    def test_get_starting_timestamp(self):
+        """Test incremental sync starting timestamp logic."""
+
+        tap_mock = Mock()
+        tap_mock.config = {"start_date": "2024-01-01T00:00:00Z"}
+        stream = PluginsStream(tap=tap_mock)
+
+        # Mock the get_context_state method
+        stream.get_context_state = Mock(return_value={})
+
+        # Should return config start_date when no state
+        timestamp = stream.get_starting_timestamp(context={})
+        assert timestamp == "2024-01-01T00:00:00Z"
+
+        # Test with state
+        stream.get_context_state = Mock(
+            return_value={"replication_key_value": "2024-06-01T12:00:00Z"}
+        )
+        timestamp = stream.get_starting_timestamp(context={})
+        assert timestamp is not None
 
 
 if __name__ == "__main__":

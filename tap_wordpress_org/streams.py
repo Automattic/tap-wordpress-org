@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 from singer_sdk import typing as th
@@ -15,7 +16,7 @@ class PluginsStream(WordPressOrgAPIStream):
     name = "plugins"
     path = "/plugins/info/1.2/"
     primary_keys = ["slug"]
-    replication_key = None
+    replication_key = "last_updated"
     records_jsonpath = "$.plugins[*]"
 
     schema = th.PropertiesList(
@@ -78,11 +79,43 @@ class PluginsStream(WordPressOrgAPIStream):
         params = {
             "action": "query_plugins",
             "per_page": 100,
-            "browse": "popular",
+            "browse": "updated",  # Use 'updated' for better incremental sync
         }
         if next_page_token:
             params["page"] = next_page_token
         return params
+
+    def get_starting_timestamp(self, context: Optional[dict]) -> Optional[datetime]:
+        """Get starting timestamp for incremental replication."""
+        state = self.get_context_state(context)
+        rep_key_value = state.get("replication_key_value")
+        if rep_key_value:
+            return datetime.fromisoformat(rep_key_value.replace("Z", "+00:00"))
+
+        # Fall back to config start_date
+        start_date = self.config.get("start_date")
+        if start_date:
+            return start_date
+
+        return None
+
+    def post_process(self, row: dict, context: Optional[dict] = None) -> Optional[dict]:
+        """Post-process record with custom transformations."""
+        # Custom transformation: HTML entity decoding
+        if row.get("name"):
+            row["name"] = row["name"].replace("&#8211;", "–").replace("&amp;", "&")
+
+        if row.get("short_description"):
+            row["short_description"] = (
+                row["short_description"].replace("&#8211;", "–").replace("&amp;", "&")
+            )
+
+        # Custom transformation: Normalize boolean fields to null
+        for field in ["requires_php", "requires", "tested"]:
+            if row.get(field) is False:
+                row[field] = None
+
+        return row
 
     def get_next_page_token(self, response, previous_token) -> Optional[Any]:
         """Return the next page token."""
@@ -101,7 +134,7 @@ class ThemesStream(WordPressOrgAPIStream):
     name = "themes"
     path = "/themes/info/1.2/"
     primary_keys = ["slug"]
-    replication_key = None
+    replication_key = "last_updated"
     records_jsonpath = "$.themes[*]"
 
     schema = th.PropertiesList(
@@ -142,11 +175,38 @@ class ThemesStream(WordPressOrgAPIStream):
         params = {
             "action": "query_themes",
             "per_page": 100,
-            "browse": "popular",
+            "browse": "updated",  # Use 'updated' for better incremental sync
         }
         if next_page_token:
             params["page"] = next_page_token
         return params
+
+    def get_starting_timestamp(self, context: Optional[dict]) -> Optional[datetime]:
+        """Get starting timestamp for incremental replication."""
+        state = self.get_context_state(context)
+        rep_key_value = state.get("replication_key_value")
+        if rep_key_value:
+            return datetime.fromisoformat(rep_key_value.replace("Z", "+00:00"))
+
+        # Fall back to config start_date
+        start_date = self.config.get("start_date")
+        if start_date:
+            return start_date
+
+        return None
+
+    def post_process(self, row: dict, context: Optional[dict] = None) -> Optional[dict]:
+        """Post-process record with custom transformations."""
+        # Custom transformation: HTML entity decoding
+        if row.get("name"):
+            row["name"] = row["name"].replace("&#8211;", "–").replace("&amp;", "&")
+
+        # Custom transformation: Normalize boolean fields to null
+        for field in ["requires_php", "requires"]:
+            if row.get(field) is False:
+                row[field] = None
+
+        return row
 
     def get_next_page_token(self, response, previous_token) -> Optional[Any]:
         """Return the next page token."""

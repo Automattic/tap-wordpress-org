@@ -21,7 +21,16 @@ def test_stream_discovery():
     streams = tap.discover_streams()
 
     stream_names = [stream.name for stream in streams]
-    expected_streams = ["plugins", "themes", "events", "patterns"]
+    expected_streams = [
+        "plugins",
+        "themes",
+        "events",
+        "patterns",
+        "wordpress_stats",
+        "php_stats",
+        "mysql_stats",
+        "locale_stats",
+    ]
 
     for expected_stream in expected_streams:
         assert expected_stream in stream_names
@@ -73,6 +82,62 @@ def test_stream_schemas():
         assert "type" in schema
         assert "properties" in schema
         assert stream.primary_keys is not None
+
+
+def test_stream_selection():
+    """Test stream selection configuration."""
+    # Test with stream selection
+    config = {"stream_selection": ["plugins", "wordpress_stats"]}
+
+    tap = TapWordPressOrg(config=config)
+    streams = tap.discover_streams()
+
+    assert len(streams) == 2
+    stream_names = [s.name for s in streams]
+    assert "plugins" in stream_names
+    assert "wordpress_stats" in stream_names
+    assert "themes" not in stream_names  # Should be filtered out
+
+
+def test_stream_selection_all_streams():
+    """Test that all streams are returned when no selection is configured."""
+    config = {}
+
+    tap = TapWordPressOrg(config=config)
+    streams = tap.discover_streams()
+
+    # Should return all 8 streams
+    assert len(streams) == 8
+
+
+def test_incremental_config():
+    """Test incremental sync configuration."""
+    config = {"start_date": "2024-01-01T00:00:00Z"}
+
+    tap = TapWordPressOrg(config=config)
+
+    # Should accept ISO datetime strings in config
+    assert tap.config["start_date"] == "2024-01-01T00:00:00Z"
+
+
+def test_new_config_options():
+    """Test new configuration options are in schema."""
+    tap = TapWordPressOrg()
+    config_schema = tap.config_jsonschema
+
+    # Check that new config options are present
+    assert "stream_selection" in config_schema["properties"]
+    assert "start_date" in config_schema["properties"]
+
+    # Verify descriptions
+    assert (
+        "List of stream names"
+        in config_schema["properties"]["stream_selection"]["description"]
+    )
+    assert (
+        "incremental replication"
+        in config_schema["properties"]["start_date"]["description"]
+    )
 
 
 if __name__ == "__main__":
