@@ -1,0 +1,6 @@
+{
+  "api_url": "https://api.wordpress.org",
+  "user_agent": "tap-wordpress-org/0.1.0",
+  "events_location": "Seattle, WA",
+  "events_ip": "192.168.1.1"
+}
