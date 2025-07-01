@@ -2,12 +2,12 @@
 name = "tap-wordpress-org"
 version = "0.1.0"
 description = "Singer tap for WordPress.org, built with the Meltano SDK for Singer Taps."
-authors = ["Your Name <you@example.com>"]
+authors = ["Automattic Inc. <opensource@automattic.com>"]
 license = "Apache-2.0"
 readme = "README.md"
-homepage = "https://github.com/your-org/tap-wordpress-org"
-repository = "https://github.com/your-org/tap-wordpress-org"
-documentation = "https://github.com/your-org/tap-wordpress-org#readme"
+homepage = "https://github.com/Automattic/tap-wordpress-org"
+repository = "https://github.com/Automattic/tap-wordpress-org"
+documentation = "https://github.com/Automattic/tap-wordpress-org#readme"
 keywords = ["meltano", "singer", "tap", "wordpress", "api"]
 classifiers = [
     "Intended Audience :: Developers",
