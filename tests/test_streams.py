@@ -230,6 +230,7 @@ class TestStreams:
 
         # Test HTML entity decoding
         test_record = {
+            "slug": "test-plugin",
             "name": "Plugin &#8211; Test &amp; More",
             "short_description": "Description &#8211; Test &amp; More",
             "requires_php": False,
@@ -252,6 +253,7 @@ class TestStreams:
         stream = ThemesStream(tap=tap_mock)
 
         test_record = {
+            "slug": "test-theme",
             "name": "Theme &#8211; Beautiful &amp; Clean",
             "requires_php": False,
             "requires": False,

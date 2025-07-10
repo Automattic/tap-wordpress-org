@@ -83,6 +83,7 @@ class PluginsStream(WordPressOrgAPIStream):
         }
         if next_page_token:
             params["page"] = next_page_token
+
         return params
 
     def get_starting_timestamp(self, context: Optional[dict]) -> Optional[datetime]:
@@ -101,21 +102,42 @@ class PluginsStream(WordPressOrgAPIStream):
 
     def post_process(self, row: dict, context: Optional[dict] = None) -> Optional[dict]:
         """Post-process record with custom transformations."""
-        # Custom transformation: HTML entity decoding
-        if row.get("name"):
-            row["name"] = row["name"].replace("&#8211;", "–").replace("&amp;", "&")
+        try:
+            # Validate required fields
+            if not row.get("slug"):
+                self.logger.warning(
+                    f"Skipping plugin record missing required 'slug' field: {row}"
+                )
+                return None
 
-        if row.get("short_description"):
-            row["short_description"] = (
-                row["short_description"].replace("&#8211;", "–").replace("&amp;", "&")
+            # Custom transformation: HTML entity decoding
+            if row.get("name"):
+                row["name"] = row["name"].replace("&#8211;", "–").replace("&amp;", "&")
+
+            if row.get("short_description"):
+                row["short_description"] = (
+                    row["short_description"]
+                    .replace("&#8211;", "–")
+                    .replace("&amp;", "&")
+                )
+
+            # Custom transformation: Normalize boolean fields to null
+            for field in ["requires_php", "requires", "tested"]:
+                if row.get(field) is False:
+                    row[field] = None
+
+            # Handle invalid date values
+            if row.get("last_updated") == "0000-00-00 00:00:00":
+                row["last_updated"] = None
+
+            return row
+
+        except Exception as e:
+            self.logger.error(
+                f"Error processing plugin record {row.get('slug', 'unknown')}: {e}"
             )
-
-        # Custom transformation: Normalize boolean fields to null
-        for field in ["requires_php", "requires", "tested"]:
-            if row.get(field) is False:
-                row[field] = None
-
-        return row
+            # Return original record rather than failing completely
+            return row
 
     def get_next_page_token(self, response, previous_token) -> Optional[Any]:
         """Return the next page token."""
@@ -179,6 +201,7 @@ class ThemesStream(WordPressOrgAPIStream):
         }
         if next_page_token:
             params["page"] = next_page_token
+
         return params
 
     def get_starting_timestamp(self, context: Optional[dict]) -> Optional[datetime]:
@@ -197,16 +220,35 @@ class ThemesStream(WordPressOrgAPIStream):
 
     def post_process(self, row: dict, context: Optional[dict] = None) -> Optional[dict]:
         """Post-process record with custom transformations."""
-        # Custom transformation: HTML entity decoding
-        if row.get("name"):
-            row["name"] = row["name"].replace("&#8211;", "–").replace("&amp;", "&")
+        try:
+            # Validate required fields
+            if not row.get("slug"):
+                self.logger.warning(
+                    f"Skipping theme record missing required 'slug' field: {row}"
+                )
+                return None
 
-        # Custom transformation: Normalize boolean fields to null
-        for field in ["requires_php", "requires"]:
-            if row.get(field) is False:
-                row[field] = None
+            # Custom transformation: HTML entity decoding
+            if row.get("name"):
+                row["name"] = row["name"].replace("&#8211;", "–").replace("&amp;", "&")
 
-        return row
+            # Custom transformation: Normalize boolean fields to null
+            for field in ["requires_php", "requires"]:
+                if row.get(field) is False:
+                    row[field] = None
+
+            # Handle invalid date values
+            if row.get("last_updated") == "0000-00-00 00:00:00":
+                row["last_updated"] = None
+
+            return row
+
+        except Exception as e:
+            self.logger.error(
+                f"Error processing theme record {row.get('slug', 'unknown')}: {e}"
+            )
+            # Return original record rather than failing completely
+            return row
 
     def get_next_page_token(self, response, previous_token) -> Optional[Any]:
         """Return the next page token."""

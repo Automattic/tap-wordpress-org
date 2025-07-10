@@ -68,6 +68,12 @@ class TapWordPressOrg(Tap):
             th.DateTimeType,
             description="Start date for incremental replication (plugins/themes)",
         ),
+        th.Property(
+            "request_delay",
+            th.NumberType,
+            default=0.1,
+            description="Delay between API requests in seconds (default: 0.1)",
+        ),
     ).to_dict()
 
     def discover_streams(self) -> List[Stream]:

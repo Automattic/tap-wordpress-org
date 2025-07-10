@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import Any, Dict, Iterator, Optional
 
 from singer_sdk.helpers.jsonpath import extract_jsonpath
@@ -34,3 +35,13 @@ class WordPressOrgAPIStream(RESTStream):
     def parse_response(self, response: Any) -> Iterator[dict]:
         """Parse the response and return an iterator of result records."""
         yield from extract_jsonpath(self.records_jsonpath, input=response.json())
+
+    def request(self, prepared_request, context: Optional[dict] = None):
+        """Make an API request with optional delay."""
+        # Add request delay if configured
+        request_delay = self.config.get("request_delay", 0.1)
+        if request_delay > 0:
+            time.sleep(request_delay)
+
+        # Make the actual request
+        return super().request(prepared_request, context)
