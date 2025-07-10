@@ -208,15 +208,18 @@ class TestStreams:
             assert "percent" in schema["properties"]
 
     def test_incremental_replication_key(self):
-        """Test that plugins and themes streams have replication keys."""
+        """Test replication key configuration for streams."""
         tap_mock = Mock()
         tap_mock.config = self.config
 
         plugins_stream = PluginsStream(tap=tap_mock)
         themes_stream = ThemesStream(tap=tap_mock)
 
+        # Plugins stream uses incremental sync
         assert plugins_stream.replication_key == "last_updated"
-        assert themes_stream.replication_key == "last_updated"
+
+        # Themes stream uses full table sync (no replication key)
+        assert themes_stream.replication_key is None
 
         # Stats streams should not have replication keys (full table)
         wordpress_stats = WordPressStatsStream(tap=tap_mock)
