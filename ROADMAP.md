@@ -6,22 +6,24 @@ This document outlines the planned improvements for tap-wordpress-org over the c
 ## Week 1-2: Performance & Reliability Enhancements
 
 ### 1. Request Optimization
-- **Add configurable request delays** to prevent overwhelming the API
+- ✅ **Add configurable request delays** to prevent overwhelming the API
   - `request_delay` parameter (default: 0.1 seconds)
   - Helps with courtesy rate limiting
-- **Implement field filtering** for plugins/themes streams
-  - `plugin_fields` and `theme_fields` parameters
-  - Reduces payload size and improves performance
-  - Example: Only fetch `["slug", "name", "version", "last_updated"]`
+  - **Status: COMPLETED**
+
+**Note**: Field filtering was investigated but removed as WordPress.org API doesn't support field-level filtering via `fields` parameter. This discovery prevents users from expecting functionality that the upstream API cannot provide.
 
 ### 2. Enhanced Error Handling
-- **Add graceful degradation** for malformed API responses
-- **Implement retry logic** for transient failures
-  - Leverage Meltano SDK's built-in retry mechanisms
-  - Add logging for retry attempts
-- **Validate required fields** before processing records
+- ✅ **Add graceful degradation** for malformed API responses
+- ✅ **Enhanced data transformations**
+  - HTML entity decoding (&#8211; → –, &amp; → &)
+  - Normalize boolean fields to null consistently
+  - Handle invalid date values (0000-00-00)
+- ✅ **Validate required fields** before processing records
   - Skip records missing critical fields like `slug`
   - Log warnings for skipped records
+- **Note**: Retry logic leverages Meltano SDK's built-in mechanisms
+  - **Status: COMPLETED**
 
 ### 3. Testing Improvements
 - **Add integration tests** for all 8 streams
@@ -98,10 +100,9 @@ This document outlines the planned improvements for tap-wordpress-org over the c
 ## Implementation Priorities
 
 ### High Priority (Maintain Stability)
-1. Request delays and field filtering
-2. Enhanced error handling
-3. Comprehensive testing
-4. Documentation updates
+1. ✅ Request delays and enhanced error handling
+2. Comprehensive testing
+3. Documentation updates
 
 ### Medium Priority (Enhance Functionality)
 1. Advanced filtering options
@@ -123,8 +124,9 @@ All improvements will maintain backward compatibility:
 
 ## Success Metrics
 
-- Zero breaking changes for existing users
-- 50% reduction in data transfer (via field filtering)
+- ✅ Zero breaking changes for existing users
+- ✅ Improved stability with error resilience  
+- ✅ Better data quality with transformations
 - 90%+ test coverage
 - Comprehensive documentation
 - Active community engagement
