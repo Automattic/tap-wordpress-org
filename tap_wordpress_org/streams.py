@@ -156,7 +156,7 @@ class ThemesStream(WordPressOrgAPIStream):
     name = "themes"
     path = "/themes/info/1.2/"
     primary_keys = ["slug"]
-    replication_key = "last_updated"
+    replication_key = None  # Themes don't have last_updated field, use full table sync
     records_jsonpath = "$.themes[*]"
 
     schema = th.PropertiesList(
@@ -197,26 +197,12 @@ class ThemesStream(WordPressOrgAPIStream):
         params = {
             "action": "query_themes",
             "per_page": 100,
-            "browse": "updated",  # Use 'updated' for better incremental sync
+            "browse": "updated",  # Use 'updated' for full table sync
         }
         if next_page_token:
             params["page"] = next_page_token
 
         return params
-
-    def get_starting_timestamp(self, context: Optional[dict]) -> Optional[datetime]:
-        """Get starting timestamp for incremental replication."""
-        state = self.get_context_state(context)
-        rep_key_value = state.get("replication_key_value")
-        if rep_key_value:
-            return datetime.fromisoformat(rep_key_value.replace("Z", "+00:00"))
-
-        # Fall back to config start_date
-        start_date = self.config.get("start_date")
-        if start_date:
-            return start_date
-
-        return None
 
     def post_process(self, row: dict, context: Optional[dict] = None) -> Optional[dict]:
         """Post-process record with custom transformations."""
