@@ -1,9 +1,9 @@
 # tap-wordpress-org Roadmap
 
 ## Overview
-This document outlines the planned improvements for tap-wordpress-org over the coming weeks, focusing on stability, performance, and feature enhancements while maintaining backward compatibility.
+This document outlines the planned improvements for tap-wordpress-org, focusing on stability, performance, and feature enhancements while maintaining backward compatibility.
 
-## Week 1-2: Performance & Reliability Enhancements
+## Performance & Reliability Enhancements
 
 ### 1. Request Optimization
 - ✅ **Add configurable request delays** to prevent overwhelming the API
@@ -34,7 +34,7 @@ This document outlines the planned improvements for tap-wordpress-org over the c
   - Network timeouts
   - Large datasets
 
-## Week 3-4: Feature Enhancements
+## Feature Enhancements
 
 ### 1. Advanced Filtering Options
 - **Add plugin/theme filtering capabilities**:
@@ -67,7 +67,7 @@ This document outlines the planned improvements for tap-wordpress-org over the c
   - Check version number formats
   - Ensure numeric fields are properly typed
 
-## Week 5-6: Documentation & User Experience
+## Documentation & User Experience
 
 ### 1. Comprehensive Documentation
 - **Create detailed configuration guide** with examples
@@ -131,11 +131,11 @@ All improvements will maintain backward compatibility:
 - Comprehensive documentation
 - Active community engagement
 
-## Timeline
+## Implementation Phases
 
-- **Week 1-2**: Core improvements (performance, reliability)
-- **Week 3-4**: Feature additions (filtering, data quality)
-- **Week 5-6**: Documentation and polish
+- **Phase 1 (✅ Complete)**: Core improvements (request optimization, error handling)
+- **Phase 2**: Feature additions (advanced filtering, data quality)
+- **Phase 3**: Documentation and user experience improvements
 - **Ongoing**: Community feedback and iteration
 
 This roadmap ensures tap-wordpress-org remains stable while evolving to meet user needs and establishing it as the definitive WordPress.org data extraction tool for the Meltano ecosystem.
