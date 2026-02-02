@@ -34,17 +34,17 @@ class PluginsStream(WordPressOrgAPIStream):
         ),
         th.Property(
             "requires",
-            th.CustomType({"type": ["string", "boolean", "null"]}),
+            th.StringType,
             description="Minimum WordPress version",
         ),
         th.Property(
             "tested",
-            th.CustomType({"type": ["string", "boolean", "null"]}),
+            th.StringType,
             description="Tested up to WordPress version",
         ),
         th.Property(
             "requires_php",
-            th.CustomType({"type": ["string", "boolean", "null"]}),
+            th.StringType,
             description="Minimum PHP version",
         ),
         th.Property("rating", th.NumberType, description="Plugin rating"),
@@ -156,7 +156,7 @@ class ThemesStream(WordPressOrgAPIStream):
     name = "themes"
     path = "/themes/info/1.2/"
     primary_keys = ["slug"]
-    replication_key = None  # Themes don't have last_updated field, use full table sync
+    replication_key = "last_updated"
     records_jsonpath = "$.themes[*]"
 
     schema = th.PropertiesList(
@@ -180,12 +180,12 @@ class ThemesStream(WordPressOrgAPIStream):
         th.Property("parent", th.StringType, description="Parent theme slug"),
         th.Property(
             "requires",
-            th.CustomType({"type": ["string", "boolean", "null"]}),
+            th.StringType,
             description="Minimum WordPress version",
         ),
         th.Property(
             "requires_php",
-            th.CustomType({"type": ["string", "boolean", "null"]}),
+            th.StringType,
             description="Minimum PHP version",
         ),
     ).to_dict()
