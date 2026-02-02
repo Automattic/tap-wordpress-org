@@ -130,7 +130,7 @@ class PluginsStream(WordPressOrgAPIStream):
             if row.get("last_updated") == "0000-00-00 00:00:00":
                 row["last_updated"] = None
 
-            return row
+            return self._filter_by_replication_key(row, context)
 
         except Exception as e:
             self.logger.error(
@@ -141,6 +141,9 @@ class PluginsStream(WordPressOrgAPIStream):
 
     def get_next_page_token(self, response, previous_token) -> Optional[Any]:
         """Return the next page token."""
+        if self._stop_pagination:
+            return None
+
         data = response.json()
         if "info" in data:
             current_page = data["info"].get("page", 1)
@@ -156,7 +159,7 @@ class ThemesStream(WordPressOrgAPIStream):
     name = "themes"
     path = "/themes/info/1.2/"
     primary_keys = ["slug"]
-    replication_key = "last_updated"
+    replication_key = "last_updated_time"
     records_jsonpath = "$.themes[*]"
 
     schema = th.PropertiesList(
@@ -228,7 +231,7 @@ class ThemesStream(WordPressOrgAPIStream):
             if row.get("last_updated") == "0000-00-00 00:00:00":
                 row["last_updated"] = None
 
-            return row
+            return self._filter_by_replication_key(row, context)
 
         except Exception as e:
             self.logger.error(
@@ -239,6 +242,9 @@ class ThemesStream(WordPressOrgAPIStream):
 
     def get_next_page_token(self, response, previous_token) -> Optional[Any]:
         """Return the next page token."""
+        if self._stop_pagination:
+            return None
+
         data = response.json()
         if "info" in data:
             current_page = data["info"].get("page", 1)

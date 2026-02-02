@@ -12,6 +12,10 @@ from singer_sdk.streams import RESTStream
 class WordPressOrgAPIStream(RESTStream):
     """WordPress.org API stream class."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._stop_pagination = False
+
     @property
     def url_base(self) -> str:
         """Return the API URL root, configurable via tap settings."""
@@ -45,3 +49,25 @@ class WordPressOrgAPIStream(RESTStream):
 
         # Make the actual request
         return super().request(prepared_request, context)
+
+    def _filter_by_replication_key(
+        self, row: dict, context: Optional[dict] = None
+    ) -> Optional[dict]:
+        """Filter out records older than bookmark, set stop flag if found."""
+        if not self.replication_key:
+            return row
+
+        starting_value = self.get_starting_replication_key_value(context)
+        if not starting_value:
+            return row
+
+        replication_value = row.get(self.replication_key)
+        if replication_value and replication_value <= starting_value:
+            if not self._stop_pagination:
+                self.logger.info(
+                    "Reached records older than bookmark, stopping pagination"
+                )
+            self._stop_pagination = True
+            return None
+
+        return row

@@ -218,8 +218,8 @@ class TestStreams:
         # Plugins stream uses incremental sync
         assert plugins_stream.replication_key == "last_updated"
 
-        # Themes stream uses incremental sync
-        assert themes_stream.replication_key == "last_updated"
+        # Themes stream uses incremental sync (using timestamp for better precision)
+        assert themes_stream.replication_key == "last_updated_time"
 
         # Stats streams should not have replication keys (full table)
         wordpress_stats = WordPressStatsStream(tap=tap_mock)
@@ -288,6 +288,34 @@ class TestStreams:
         )
         timestamp = stream.get_starting_timestamp(context={})
         assert timestamp is not None
+
+    def test_incremental_filtering(self):
+        """Test incremental sync filtering logic."""
+        tap_mock = Mock()
+        tap_mock.config = self.config
+
+        # Test plugins stream filters old records
+        stream = PluginsStream(tap=tap_mock)
+        stream.get_starting_replication_key_value = Mock(
+            return_value="2024-06-01 12:00:00"
+        )
+
+        old_record = {"slug": "test", "last_updated": "2024-05-01 10:00:00"}
+        assert stream._filter_by_replication_key(old_record, context={}) is None
+        assert stream._stop_pagination is True
+
+        # Test themes uses last_updated_time field
+        themes = ThemesStream(tap=tap_mock)
+        themes.get_starting_replication_key_value = Mock(
+            return_value="2024-06-01 12:00:00"
+        )
+        old_theme = {"slug": "test", "last_updated_time": "2024-05-01 10:00:00"}
+        assert themes._filter_by_replication_key(old_theme, context={}) is None
+
+        # Test streams without replication_key pass all records
+        events = EventsStream(tap=tap_mock)
+        record = {"id": "test", "title": "Test"}
+        assert events._filter_by_replication_key(record, context={}) == record
 
 
 if __name__ == "__main__":
