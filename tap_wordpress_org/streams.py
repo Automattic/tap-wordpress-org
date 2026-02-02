@@ -196,12 +196,12 @@ class ThemesStream(WordPressOrgAPIStream):
         """Return URL parameters for theme search."""
         params = {
             "action": "query_themes",
-            "per_page": 100,
-            "browse": "updated",
+            "request[per_page]": 100,
+            "request[browse]": "updated",
             "request[fields][last_updated]": "true",
         }
         if next_page_token:
-            params["page"] = next_page_token
+            params["request[page]"] = next_page_token
 
         return params
 
