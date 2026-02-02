@@ -218,8 +218,8 @@ class TestStreams:
         # Plugins stream uses incremental sync
         assert plugins_stream.replication_key == "last_updated"
 
-        # Themes stream uses full table sync (no replication key)
-        assert themes_stream.replication_key is None
+        # Themes stream uses incremental sync
+        assert themes_stream.replication_key == "last_updated"
 
         # Stats streams should not have replication keys (full table)
         wordpress_stats = WordPressStatsStream(tap=tap_mock)
