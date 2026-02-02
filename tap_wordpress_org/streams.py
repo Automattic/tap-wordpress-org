@@ -197,7 +197,8 @@ class ThemesStream(WordPressOrgAPIStream):
         params = {
             "action": "query_themes",
             "per_page": 100,
-            "browse": "updated",  # Use 'updated' for full table sync
+            "browse": "updated",
+            "request[fields][last_updated]": "true",
         }
         if next_page_token:
             params["page"] = next_page_token
