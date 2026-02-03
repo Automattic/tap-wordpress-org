@@ -259,27 +259,32 @@ class EventsStream(WordPressOrgAPIStream):
 
     name = "events"
     path = "/events/1.0/"
-    primary_keys = ["id"]
+    primary_keys = ["url"]
     replication_key = None
     records_jsonpath = "$.events[*]"
 
     schema = th.PropertiesList(
-        th.Property("id", th.StringType, description="Event ID"),
         th.Property("title", th.StringType, description="Event title"),
         th.Property("url", th.StringType, description="Event URL"),
+        th.Property("type", th.StringType, description="Event type (wordcamp, meetup)"),
+        th.Property("meetup", th.StringType, description="Meetup group name"),
+        th.Property("meetup_url", th.StringType, description="Meetup group URL"),
+        th.Property("date", th.StringType, description="Event start date"),
+        th.Property("end_date", th.StringType, description="Event end date"),
+        th.Property(
+            "start_unix_timestamp", th.IntegerType, description="Start timestamp"
+        ),
+        th.Property("end_unix_timestamp", th.IntegerType, description="End timestamp"),
         th.Property(
             "location",
             th.ObjectType(
+                th.Property("location", th.StringType),
+                th.Property("country", th.StringType),
                 th.Property("latitude", th.NumberType),
                 th.Property("longitude", th.NumberType),
-                th.Property("country", th.StringType),
-                th.Property("location", th.StringType),
             ),
             description="Event location",
         ),
-        th.Property("date", th.StringType, description="Event date"),
-        th.Property("end_date", th.StringType, description="Event end date"),
-        th.Property("type", th.StringType, description="Event type"),
     ).to_dict()
 
     def get_url_params(
